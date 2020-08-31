@@ -685,7 +685,7 @@
       if (fracture) {
         x = y = z = angle;
       }
-      return el.style[css.transform] = "rotateX(" + x + "deg) rotateY(" + y + "deg) rotateZ(" + z + "deg) translate" + transPrefix + this._config.gapNudge + "px)";
+      return el.style[css.transform] = "rotateX(" + x + "deg) rotateY(" + y + "deg) rotateZ(" + z + "deg) translate" + transPrefix + parseInt(this._config.gapNudge) + "px)";
     };
 
     OriDomi.prototype._normalizeAngle = function(angle) {
@@ -1167,6 +1167,63 @@
       }
       return this;
     };
+
+
+    OriDomi.prototype.accordionWithHeadline = prep(function(angle, anchor, options) {
+      this.emptyQueue();
+      return this._iterate(anchor, (function(_this) {
+        return function(panel, i) {
+
+
+          var deg;
+          var originalI = i;
+          var openIndex = options.openIndex*3;
+          i--
+
+          if( (!options.all && (i ==openIndex || i==openIndex+1 || i== openIndex+2)) || (options.all && (i % 3 == 0 || i % 3 == 1 || i % 3 == 2 ))){
+
+            while(i > 2)
+              i = i-3;
+
+            if (i % 2 !== 0 && !options.twist) {
+              deg = -angle;
+            } else {
+              deg = angle;
+            }
+            if (options.sticky) {
+              if (i === 0) {
+                deg = 0;
+              } else if (i > 1 || options.stairs) {
+                deg *= 2;
+              }
+            } else {
+              if (i !== 0) {
+                deg *= 2;
+              }
+            }
+            if (options.stairs) {
+              deg *= -1;
+            }
+
+            if(i == 2)
+              deg = deg/2;
+
+            _this._transformPanel(panel, deg, anchor, options.fracture);
+
+            if((originalI-1) % 3 != 0){
+              if (_this._shading) {
+                if (options.twist || options.fracture || (i === 0 && options.sticky)) {
+                  return _this._setShader(originalI-1, anchor, 0);
+                } else if (Math.abs(deg) !== 180) {
+                  return _this._setShader(originalI-1, anchor, deg);
+                }
+              }
+            }
+          }
+          
+        };
+      })(this));
+    });
 
     OriDomi.prototype.accordion = prep(function(angle, anchor, options) {
       return this._iterate(anchor, (function(_this) {
